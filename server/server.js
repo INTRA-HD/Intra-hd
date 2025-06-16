@@ -46,13 +46,42 @@ if (process.env.NODE_ENV === 'production') {
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.CLIENT_URL  // In production, only allow the specific client URL
-    : '*',                    // In development, allow all origins
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl requests, etc)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      process.env.CLIENT_URL,           // Web client URL
+      'capacitor://localhost',          // Capacitor mobile apps
+      'ionic://localhost',              // Ionic framework
+      'exp://localhost:19000',          // Expo
+      'exp://localhost:19001',
+      'http://localhost',               // Local development
+      'http://localhost:5173',          // Vite dev server
+      'http://192.168.1.7:5173'         // Local network IP (update as needed)
+    ];
+    
+    // In development mode, allow all origins
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+
+    // In production, check if the origin is allowed
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   preflightContinue: false,
   optionsSuccessStatus: 204,
-  credentials: true
+  credentials: true,
+  // Allow all headers from mobile apps
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
 };
 
 // Middleware
