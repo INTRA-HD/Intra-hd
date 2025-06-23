@@ -52,16 +52,15 @@ const Order = db.define('Order', {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
-  deliveryFee: {
+  charges: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
-    defaultValue: 6.00,
-    comment: 'Fixed delivery fee in GHS'
+    comment: '20% of order amount'
   },
   totalAmount: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
-    comment: 'Order amount + delivery fee'
+    comment: 'Order amount + charges'
   },
   // Payment information
   paymentStatus: {
@@ -90,11 +89,12 @@ const Order = db.define('Order', {
   timestamps: true,
   hooks: {
     beforeValidate: (order) => {
-      // Calculate total amount before saving
+      // Calculate charges and total amount before saving
       if (order.orderAmount) {
         const orderAmount = parseFloat(order.orderAmount);
-        const deliveryFee = parseFloat(order.deliveryFee || 6.00);
-        order.totalAmount = orderAmount + deliveryFee;
+        const charges = +(orderAmount * 0.2).toFixed(2);
+        order.charges = charges;
+        order.totalAmount = +(orderAmount + charges).toFixed(2);
       }
     }
   },

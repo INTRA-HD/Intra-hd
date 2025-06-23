@@ -39,7 +39,7 @@ exports.initializePayment = async (req, res) => {
 
     // Initialize transaction
     const paymentData = {
-      amount: parseFloat(order.orderAmount) * 100, // Convert to pesewas (kobo)
+      amount: parseFloat(order.totalAmount) * 100, // Use totalAmount for payment
       email,
       reference,
       metadata: {

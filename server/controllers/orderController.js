@@ -31,7 +31,6 @@ const orderSchema = Joi.object({
     otherwise: Joi.optional()
   }),
   userId: Joi.string().optional(),
-  deliveryFee: Joi.number().default(6.00)
 });
 
 // Create a new order
@@ -48,11 +47,15 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    // Set delivery fee and calculate total
+    // Calculate charges and totalAmount
+    const orderAmount = parseFloat(value.orderAmount);
+    const charges = +(orderAmount * 0.2).toFixed(2);
+    const totalAmount = +(orderAmount + charges).toFixed(2);
+
     const orderData = {
       ...value,
-      deliveryFee: 6.00, // Fixed delivery fee
-      totalAmount: parseFloat(value.orderAmount) + 6.00
+      charges,
+      totalAmount
     };
 
     // Create order in database

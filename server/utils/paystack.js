@@ -20,11 +20,9 @@ exports.initializeTransaction = async (data) => {
   try {
     const { amount, email, reference, metadata } = data;
     
-    // Add delivery fee to the order amount
-    const totalAmount = amount + 600; // 6 GHS in kobo (pesewas)
-    
+    // Use amount as totalAmount (orderAmount + charges)
     const response = await paystackAPI.post('/transaction/initialize', {
-      amount: totalAmount,
+      amount, // amount should already be totalAmount * 100 (pesewas)
       email,
       reference,
       metadata
